@@ -1,0 +1,43 @@
+{
+  "name": "docker-webproxy",
+  "version": "1.0.0",
+  "description": "Foward to the right container depending on subdomain",
+  "scripts": {
+    "packaging:prepare": "docker-packaging/prepare.sh",
+    "packaging:image-build": "docker-packaging/image-build.sh",
+    "packaging:service-deploy": "docker-packaging/service-deploy.sh",
+    "packaging:container-run": "docker-packaging/container-run.sh",
+
+    "run:dev": "NODE_ENV=dev nodemon --watch src src/app.js",
+    "lint": "eslint src/*.js && eslint src/**/*.js && eslint test/**/*.js ",
+    "test:unit": "NODE_ENV=dev istanbul cover _mocha $(find ./src -name \"*.spec.js\") ",
+    "test:auto": "npm-watch",
+    "test:auto:run": "npm run lint && npm run test:unit"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "node-docker-monitor": "^1.0.10",
+    "winston": "^2.3.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "eslint": "^3.17.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "nodemon": "^1.11.0",
+    "npm-watch": "^0.1.8",
+    "sinon": "^2.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DidierHoarau/docker-webproxy"
+  },
+  "keywords": [],
+  "author": "Didier Hoarau",
+  "license": "UNLICENSED",
+  "homepage": "",
+  "watch": {
+    "test:auto:run": "{src}/*.js"
+  }
+}

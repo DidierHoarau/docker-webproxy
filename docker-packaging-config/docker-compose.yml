@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+
+  nginx:
+    build: .
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/data/certificates:/opt/data/certificates
+    networks:
+      proxy-network:
+        aliases:
+          - webproxy
+
+networks:
+  proxy-network:
+    external: true

@@ -1,0 +1,3 @@
+[submodule "docker-packaging"]
+	path = docker-packaging
+	url = https://github.com/DidierHoarau/docker-packaging
