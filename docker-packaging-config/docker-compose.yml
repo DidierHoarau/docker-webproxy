@@ -11,10 +11,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/data/certificates:/opt/data/certificates
     networks:
-      proxy-network:
-        aliases:
-          - webproxy
+      - webproxy-network
+    restart: always
 
 networks:
-  proxy-network:
+  webproxy-network:
     external: true
