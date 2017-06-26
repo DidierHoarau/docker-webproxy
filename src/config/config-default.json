@@ -4,5 +4,6 @@
     "reloadCommand": "/usr/sbin/nginx -s reload",
     "wellKnownDir": "/opt/data/certificates/well-known",
     "letsencryptDir": "/opt/data/certificates/letsencrypt"
-  }
+  },
+  "network": "webproxy-network"
 }

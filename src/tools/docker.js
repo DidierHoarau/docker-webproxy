@@ -2,6 +2,8 @@
  * Docker Container Information Tools
  */
 
+const _ = require('lodash');
+const config = require('./config');
 
 /**
  * Push the value to the array if new and defined
@@ -21,12 +23,8 @@ function arrayPushIfNew(array, value) {
   array.push(value);
 }
 
-
-
 // Public Functions
 module.exports = {
-
-
   /**
    * Get the name of the service
    * Name only checked in label: tg.discovery.service.name
@@ -35,8 +33,7 @@ module.exports = {
    *                      { private: [ { host , port } ] ,
    *                        public:  [ { host , port } ] } }
    */
-  getService: function (container) {
-
+  getService: function(container) {
     // Init
     let service = {
       name: null,
@@ -61,24 +58,32 @@ module.exports = {
     service.name = container.Labels['discovery.service.name'];
 
     // Public Host
-    for (let net_definition_key in container.NetworkSettings.Networks) {
-      let net_definition = container.NetworkSettings.Networks[net_definition_key];
-      service.coordinates.private.host = net_definition.IPAddress;
-      break;
+    if (_.has(container, 'NetworkSettings.Networks.' + config.network)) {
+      service.coordinates.private.host =
+        container.NetworkSettings.Networks[config.network].IPAddress;
+    } else {
+      return null;
     }
 
     // Ports
     for (let i = 0; i < container.Ports.length; i++) {
       let port_definition = container.Ports[i];
 
-      arrayPushIfNew(service.coordinates.private.ports, port_definition.PrivatePort);
-      arrayPushIfNew(service.coordinates.public.ports, port_definition.PublicPort);
-
+      arrayPushIfNew(
+        service.coordinates.private.ports,
+        port_definition.PrivatePort
+      );
+      arrayPushIfNew(
+        service.coordinates.public.ports,
+        port_definition.PublicPort
+      );
     }
 
     // If Specified port
     if (container.Labels['discovery.service.port']) {
-      service.coordinates.private.ports = [container.Labels['discovery.service.port']];
+      service.coordinates.private.ports = [
+        container.Labels['discovery.service.port']
+      ];
     }
 
     // HTTPS?
@@ -86,11 +91,7 @@ module.exports = {
       service.https = true;
     }
 
-
     // Results
     return service;
   }
-
-
-
 };

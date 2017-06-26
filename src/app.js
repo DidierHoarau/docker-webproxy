@@ -2,8 +2,7 @@
  * Start of the application
  */
 
-const
-  dockerMonitor = require('node-docker-monitor'),
+const dockerMonitor = require('node-docker-monitor'),
   dockerTools = require('./tools/docker'),
   proxy = require('./tools/proxy'),
   logger = require('./tools/logger');
@@ -15,7 +14,6 @@ logger.log('info', LOGTAG + 'Starting app');
 proxy.reset();
 
 dockerMonitor({
-
   /**
    * Called when Docker Container is started (Also called on Startup)
    * @param {Object} container Container information
@@ -23,11 +21,12 @@ dockerMonitor({
    */
   onContainerUp: function(container) {
     const service = dockerTools.getService(container);
-    if (!service) { return; }
+    if (!service) {
+      return;
+    }
     logger.log('info', LOGTAG + 'Service UP: ' + JSON.stringify(service));
     proxy.register(service);
   },
-
 
   /**
    * Called when Docker Container is stoped
@@ -36,9 +35,12 @@ dockerMonitor({
    */
   onContainerDown: function(container) {
     const service = dockerTools.getService(container);
-    if (!service) { return; }
-    logger.log(LOGTAG + 'Service DOWN: ' + JSON.stringify(service).substring(0,20));
+    if (!service) {
+      return;
+    }
+    logger.log(
+      LOGTAG + 'Service DOWN: ' + JSON.stringify(service).substring(0, 20)
+    );
     proxy.deregister(service);
   }
-  
 });
