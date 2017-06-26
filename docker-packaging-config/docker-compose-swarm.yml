@@ -3,7 +3,8 @@ version: '3'
 services:
 
   nginx:
-    image: dockerwebproxy_nginx
+    build: .
+    image: ${DOCKER_REGISTRY}/dockerwebproxy_nginx
     ports:
       - "80:80"
       - "443:443"
@@ -11,10 +12,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/data/certificates:/opt/data/certificates
     networks:
-      proxy-network:
-        aliases:
-          - webproxy
+      - webproxy-network
+    restart: always
+    environment:
+      - "constraint:webproxy==true"
 
 networks:
-  proxy-network:
+  webproxy-network:
     external: true
