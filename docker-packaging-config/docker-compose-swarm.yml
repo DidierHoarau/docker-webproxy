@@ -13,9 +13,6 @@ services:
       - /opt/data/certificates:/opt/data/certificates
     networks:
       - webproxy-network
-    restart: always
-    environment:
-      - "constraint:webproxy==true"
     deploy:
       mode: global
 
