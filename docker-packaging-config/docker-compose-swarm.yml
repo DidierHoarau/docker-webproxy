@@ -16,6 +16,8 @@ services:
     restart: always
     environment:
       - "constraint:webproxy==true"
+    deploy:
+      mode: global
 
 networks:
   webproxy-network:
