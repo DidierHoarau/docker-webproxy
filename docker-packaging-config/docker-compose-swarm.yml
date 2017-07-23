@@ -13,8 +13,6 @@ services:
       - /opt/data/certificates:/opt/data/certificates
     networks:
       - webproxy-network
-    deploy:
-      mode: global
 
 networks:
   webproxy-network:
