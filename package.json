@@ -3,21 +3,30 @@
   "version": "1.0.0",
   "description": "Foward to the right container depending on subdomain",
   "scripts": {
+    "//": "-- Packaging ------------------------------------------------------",
     "packaging:prepare": "docker-packaging/prepare.sh",
     "packaging:image-build": "docker-packaging/image-build.sh",
     "packaging:image-push": "docker-packaging/image-push.sh",
     "packaging:service-deploy": "docker-packaging/service-deploy.sh",
     "packaging:service-run": "docker-packaging/service-run.sh",
-
-    "run:dev": "NODE_ENV=dev nodemon --watch src src/app.js",
-    "lint": "eslint src/*.js && eslint src/**/*.js && eslint test/**/*.js ",
-    "test:unit": "NODE_ENV=dev istanbul cover _mocha $(find ./src -name \"*.spec.js\") ",
-    "test:auto": "npm-watch",
-    "test:auto:run": "npm run lint && npm run test:unit"
+    "///": "-- Dev -----------------------------------------------------------",
+    "deploy:docker": "npm run packaging:prepare && npm run packaging:image-build && npm run packaging:service-run",
+    "deploy:swarm": "npm run packaging:prepare && npm run packaging:image-build swarm && npm run packaging:image-push swarm && npm run packaging:service-deploy swarm",
+    "run:proxy": "NODE_ENV=dev nodemon --watch src-proxy src-proxy/app.js",
+    "run:watcher": "NODE_ENV=dev nodemon --watch src-watcher src-watcher/app.js",
+    "run:all": "concurrently --kill-others \"npm run run:proxy\" \"npm run run:watcher\"",
+    "lint": "eslint src-proxy && eslint src-watcher ",
+    "test:unit": "NODE_ENV=dev istanbul cover _mocha $(find ./src* -name \"*.spec.js\") "
   },
   "dependencies": {
+    "body-parser": "^1.17.2",
+    "concurrently": "^3.5.0",
+    "dockerode": "^2.5.0",
+    "express": "^4.15.3",
+    "fs-extra": "^4.0.0",
     "lodash": "^4.17.4",
     "node-docker-monitor": "^1.0.10",
+    "request": "^2.81.0",
     "winston": "^2.3.1"
   },
   "devDependencies": {

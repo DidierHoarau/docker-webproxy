@@ -1,0 +1,16 @@
+{
+  "extends": "eslint:recommended",
+
+  "env": {
+    "node": true,
+    "mocha": true,
+    "es6": true
+  },
+
+  "rules": {
+    "no-undef": "error",
+    "prefer-const": "error",
+    "camelcase": ["error", {properties: "never"}],
+    "max-len": [1, 120, 2],
+  }
+}

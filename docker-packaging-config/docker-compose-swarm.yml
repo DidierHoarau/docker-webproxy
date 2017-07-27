@@ -2,15 +2,30 @@ version: '3'
 
 services:
 
-  nginx:
-    build: .
-    image: ${DOCKER_REGISTRY}/dockerwebproxy_nginx
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile-proxy
+    image: ${DOCKER_REGISTRY}/dockerwebproxy_proxy
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - /opt/data/certificates:/opt/data/certificates
+    networks:
+      webproxy-network:
+        aliases:
+          - webproxy-proxy
+    deploy:
+      mode: global
+
+  watcher:
+    build:
+      context: .
+      dockerfile: Dockerfile-watcher
+    image: ${DOCKER_REGISTRY}/dockerwebproxy_watcher
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - webproxy-network
     deploy:

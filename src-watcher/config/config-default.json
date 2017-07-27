@@ -1,0 +1,5 @@
+{
+  "proxyUrl": "http://webproxy-proxy:3000",
+  "network": "webproxy-network",
+  "refreshInterval": "1200000"
+}

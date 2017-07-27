@@ -1,0 +1,8 @@
+{
+  "nginx": {
+    "configDir": "./tmp",
+    "reloadCommand": "ls ./tmp",
+    "wellKnownDir": "./tmp",
+    "letsencryptDir": "./tmp"
+  }
+}

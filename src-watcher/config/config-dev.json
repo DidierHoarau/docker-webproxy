@@ -1,0 +1,5 @@
+{
+  "proxyUrl": "http://localhost:3000",
+  "network": "webproxy-network",
+  "refreshInterval": "11000"
+}

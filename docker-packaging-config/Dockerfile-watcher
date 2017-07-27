@@ -1,0 +1,8 @@
+FROM node
+
+COPY files/node_modules /opt/app/node_modules
+COPY files/src-watcher /opt/app/src-watcher
+
+WORKDIR /opt/app
+
+CMD ["node", "src-watcher/app.js"]

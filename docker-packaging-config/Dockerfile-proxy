@@ -11,10 +11,10 @@ RUN apt-get update \
 EXPOSE 80 443
 
 COPY docker/nginx/entrypoint.sh /opt/
-COPY files/ /opt/app
+COPY files/node_modules /opt/app/node_modules
+COPY files/src-proxy /opt/app/src-proxy
 
 RUN chmod +x /opt/entrypoint.sh
 RUN mkdir -p /opt/certificates
-
 
 CMD ["/opt/entrypoint.sh"]

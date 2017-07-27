@@ -2,17 +2,26 @@ version: '3'
 
 services:
 
-  nginx:
-    build: .
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile-proxy
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - /opt/data/certificates:/opt/data/certificates
     networks:
       - webproxy-network
-    restart: always
+
+  watcher:
+    build:
+      context: .
+      dockerfile: Dockerfile-watcher
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - webproxy-network
 
 networks:
   webproxy-network:
