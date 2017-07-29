@@ -17,7 +17,7 @@ class Nginx {
    * @return {undefined}
    */
   register(service) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       // Common rules
       let httpsConfig = '';
       let configContent = '';
@@ -91,6 +91,8 @@ class Nginx {
           reload();
         });
       }
+
+      resolve();
     });
   }
 
@@ -99,7 +101,7 @@ class Nginx {
    * @return {Promise<void>} Th promise is resolved once the configuration is reset
    */
   reset() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       logger.info(`${LOGTAG} Removing old configuration files...`);
       fs.ensureDir(config.nginx.configDir).then(() => {
         const configFiles = fs.readdirSync(config.nginx.configDir);

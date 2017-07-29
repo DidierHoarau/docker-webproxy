@@ -4,7 +4,6 @@
 
 const config = require('./config');
 const logger = require('./logger');
-const exec = require('child_process').exec;
 const request = require('request');
 
 const LOGTAG = '[proxy]';

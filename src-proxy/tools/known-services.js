@@ -3,7 +3,6 @@
  */
 
 const _ = require('lodash');
-const config = require('../config');
 const nginx = require('./nginx');
 const logger = require('./logger');
 
@@ -14,7 +13,7 @@ const servicesRegistry = [];
 class KnownServices {
   //
   update(node, updatedServices) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       let isUpdated = false;
       // Check new services
       _.forEach(updatedServices, updatedService => {
@@ -74,7 +73,7 @@ class KnownServices {
                   nbRulesTodo--;
                   checkFinished();
                 })
-                .catch(error => {
+                .catch(() => {
                   nbRulesTodo--;
                   checkFinished();
                 });

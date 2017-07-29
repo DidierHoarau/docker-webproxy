@@ -47,11 +47,10 @@ module.exports = new Services();
 
 function validateService(container) {
   // Init
-  let service = {
+  const service = {
     id: null,
     node: null,
     name: null,
-    node: null,
     address: null,
     port: null,
     https: false
@@ -66,8 +65,7 @@ function validateService(container) {
   service.name = container.Labels['discovery.service.name'];
   service.port = container.Labels['discovery.service.port'];
   if (_.has(container, 'NetworkSettings.Networks.' + config.network)) {
-    service.address =
-      container.NetworkSettings.Networks[config.network].IPAddress;
+    service.address = container.NetworkSettings.Networks[config.network].IPAddress;
   }
   if (container.Labels['discovery.service.https'] === 'y') {
     service.https = true;

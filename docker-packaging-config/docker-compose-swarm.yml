@@ -16,8 +16,6 @@ services:
       webproxy-network:
         aliases:
           - webproxy-proxy
-    deploy:
-      mode: global
 
   watcher:
     build:
@@ -27,7 +25,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - webproxy-network
+      webproxy-network:
+        aliases:
+          - webproxy-watcher
+    depends_on:
+      - proxy
     deploy:
       mode: global
 
