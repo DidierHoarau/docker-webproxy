@@ -1,20 +1,23 @@
 FROM ubuntu
 
 RUN apt-get update \
-    && apt-get install -y curl \
+    && apt-get install -y curl software-properties-common \
     && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
+    && add-apt-repository ppa:certbot/certbot \
     && apt-get update \
   	&& apt-get install --no-install-recommends --no-install-suggests -y \
                        ca-certificates nginx gettext-base nodejs \
+                       letsencrypt python-certbot-nginx \
     && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 80 443
 
-COPY docker/nginx/entrypoint.sh /opt/
+COPY docker/proxy/entrypoint.sh /opt/
+COPY docker/proxy/certificates-generate.sh /opt/
+COPY docker/proxy/certificates-renew.sh /opt/
 COPY files/node_modules /opt/app/node_modules
 COPY files/src-proxy /opt/app/src-proxy
 
-RUN chmod +x /opt/entrypoint.sh
-RUN mkdir -p /opt/certificates
+RUN chmod +x /opt/*.sh
 
 CMD ["/opt/entrypoint.sh"]

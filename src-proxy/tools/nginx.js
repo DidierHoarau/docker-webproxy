@@ -17,31 +17,26 @@ class Nginx {
    * @return {undefined}
    */
   register(service) {
-    return new Promise(resolve => {
-      // Common rules
-      let httpsConfig = '';
+    return new Promise((resolve, reject) => {
       let configContent = '';
+      let configContentHttps = '';
+      const hasCertificate = fs.existsSync(`${config.nginx.letsencryptDir}/live/${service.name}/fullchain.pem`);
       const configServerName = `server_name ${service.name} www.${service.name}; `;
-      const configContentLocation = `
-        location / {
-        resolver        127.0.0.1;
-        proxy_pass http://${service.address}:${service.port};
-        proxy_redirect off;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-      }  `;
 
-      // Https Config
-      if (service.https) {
-        logger.info(`${LOGTAG} ${service.name}: Enable .well-known`);
-        httpsConfig = `
-        location /.well-known {
-          alias ${config.nginx.wellKnownDir}/${service.name}/.well-known;
-        } `;
-      }
-      if (service.https && fs.existsSync(`${config.nginx.letsencryptDir}/live/${service.name}/fullchain.pem`)) {
+      // Common rules
+      const configContainerRouting = `
+        location / {
+          resolver        127.0.0.1;
+          proxy_pass http://${service.address}:${service.port};
+          proxy_redirect off;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+      }\n`;
+
+      // Https config
+      if (service.https && hasCertificate) {
         logger.info(`${LOGTAG} ${service.name}: Enable Https`);
         configContent = `
           server {
@@ -49,50 +44,57 @@ class Nginx {
             ${configServerName}
             return 301 https://$host$request_uri;
           }`;
+        configContentHttps = `
+            server {
+              listen 443 ssl http2;
+              server_name ${service.name} www.${service.name};
+              ssl_certificate ${config.nginx.letsencryptDir}/live/${service.name}/fullchain.pem;
+              ssl_certificate_key ${config.nginx.letsencryptDir}/live/${service.name}/privkey.pem;
+              ssl_stapling on;
+              ssl_stapling_verify on;
+              add_header Strict-Transport-Security "max-age=31536000";
+              location /.well-known {
+                alias ${config.nginx.wellKnownDir}/${service.name};
+            }
+            ${configContainerRouting}
+          }`;
+        // Just Http. Note: enable well-known anyway
       } else {
         configContent = `
           server {
             listen 80;
             ${configServerName}
-            ${httpsConfig}
-            ${configContentLocation}
-        }`;
-      }
-      fs.writeFile(`${config.nginx.configDir}/${service.name}.conf`, configContent, err => {
-        if (err) {
-          logger.error(`${LOGTAG} ${err}`);
-          throw err;
-        }
-        reload();
-      });
-
-      // Https Config
-      if (service.https && fs.existsSync(`${config.nginx.letsencryptDir}/live/${service.name}/fullchain.pem`)) {
-        const configContentHttps = `
-          server {
-            listen 443 ssl http2;
-            server_name ${service.name} www.${service.name};
-            ssl_certificate ${config.nginx.letsencryptDir}/live/${service.name}/fullchain.pem;
-            ssl_certificate_key ${config.nginx.letsencryptDir}/live/${service.name}/privkey.pem;
-            ssl_stapling on;
-            ssl_stapling_verify on;
-            add_header Strict-Transport-Security "max-age=31536000";
             location /.well-known {
-              alias ${config.nginx.wellKnownDir}/${service.name}/.well-known;
-          }
-          ${configContentLocation}
-        }`;
-
-        fs.writeFile(`${config.nginx.configDir}/${service.name}_https.conf`, configContentHttps, err => {
-          if (err) {
-            logger.error(`${LOGTAG} ${err}`);
-            throw err;
-          }
-          reload();
-        });
+              alias ${config.nginx.wellKnownDir}/${service.name};
+            }
+            ${configContainerRouting}
+        }\n`;
       }
 
-      resolve();
+      // Write changes
+      fs
+        .writeFile(`${config.nginx.configDir}/${service.name}.conf`, configContent)
+        .then(() => {
+          return fs.ensureDir(`${config.nginx.wellKnownDir}/${service.name}`);
+        })
+        .then(() => {
+          if (service.https && hasCertificate) {
+            logger.info(`${LOGTAG} ${service.name}: Https configuration set`);
+            return fs.writeFile(`${config.nginx.configDir}/${service.name}_https.conf`, configContentHttps);
+          } else {
+            return Promise.resolve();
+          }
+        })
+        .then(() => {
+          logger.info(`${LOGTAG} ${service.name}: Configuration successful`);
+          reload();
+          resolve();
+        })
+        .catch(error => {
+          logger.error(`${LOGTAG} ${service.name}: Failed to write changes: ${error}`);
+          reload();
+          reject(new Error('Failed to write changes'));
+        });
     });
   }
 

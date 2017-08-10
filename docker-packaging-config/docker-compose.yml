@@ -10,7 +10,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /opt/data/certificates:/opt/data/certificates
+      - /opt/data/dockerwebproxy_letencrypt:/etc/letsencrypt
     networks:
       webproxy-network:
         aliases:

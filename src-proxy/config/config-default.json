@@ -2,7 +2,7 @@
   "nginx": {
     "configDir": "/etc/nginx/conf.d",
     "reloadCommand": "/usr/sbin/nginx -s reload",
-    "wellKnownDir": "/opt/data/certificates/well-known",
-    "letsencryptDir": "/opt/data/certificates/letsencrypt"
+    "wellKnownDir": "/opt/data/well-known",
+    "letsencryptDir": "/etc/letsencrypt"
   }
 }
