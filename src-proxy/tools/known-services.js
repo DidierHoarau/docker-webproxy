@@ -20,7 +20,7 @@ class KnownServices {
         const registryItem = _.find(servicesRegistry, {
           name: updatedService.name
         });
-        // Service name unknown
+        // Service unknown
         if (!registryItem) {
           isUpdated = true;
           servicesRegistry.push({
@@ -28,14 +28,21 @@ class KnownServices {
             entries: [{ timestamp: new Date(), node, details: updatedService }]
           });
         } else {
-          // Service name known but not for this node
-          if (!_.find(registryItem.entries, { node })) {
+          // Service name known but not for this id
+          const previousNodeEntry = _.find(registryItem.entries, { node });
+          if (!previousNodeEntry) {
             isUpdated = true;
             registryItem.entries.push({
               timestamp: new Date(),
               node,
               details: updatedService
             });
+          } else {
+            // If content different
+            if (previousNodeEntry.details.id !== updatedService.id) {
+              previousNodeEntry.timestamp = new Date();
+              previousNodeEntry.details = updatedService;
+            }
           }
         }
       });
