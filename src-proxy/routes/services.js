@@ -4,7 +4,7 @@
 
 const servicesApi = require('express').Router();
 const logger = require('../tools/logger');
-const knownContainers = require('../tools/known-services');
+const servicesRegistry = require('../tools/services-registry');
 
 const LOGTAG = '[routes/services]';
 
@@ -18,7 +18,7 @@ servicesApi.post('/', (req, res) => {
   if (!services) {
     return res.status(400).json({ error: 'services missing' });
   }
-  knownContainers
+  servicesRegistry
     .update(node, services)
     .then(() => {
       return res.status(201).json({});

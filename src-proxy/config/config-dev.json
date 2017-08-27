@@ -1,8 +1,11 @@
 {
   "nginx": {
     "configDir": "./tmp",
-    "reloadCommand": "ls ./tmp",
-    "wellKnownDir": "./tmp",
+    "reloadCommand": "ls ./tmp"
+  },
+  "letsencrypt": {
+    "renewCommand": "ls",
+    "certbotRoot": "./tmp",
     "letsencryptDir": "./tmp"
   }
 }

@@ -1,8 +1,11 @@
 {
   "nginx": {
     "configDir": "/etc/nginx/conf.d",
-    "reloadCommand": "/usr/sbin/nginx -s reload",
-    "wellKnownDir": "/opt/data/well-known",
+    "reloadCommand": "/usr/sbin/nginx -s reload"
+  },
+  "letsencrypt": {
+    "renewCommand": "/opt/certificates-renew.sh",
+    "certbotRoot": "/opt/data/certbot-root/",
     "letsencryptDir": "/etc/letsencrypt"
   }
 }
