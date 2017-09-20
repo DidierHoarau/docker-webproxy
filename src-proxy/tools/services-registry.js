@@ -14,7 +14,7 @@ let servicesRegistered = [];
 class KnownServices {
   //
   update(node, updatedServices) {
-    return new Promise(resolve => {
+    return Promise.resolve().then(() => {
       // Check new services
       _.forEach(updatedServices, updatedService => {
         const knownItem = _.find(servicesKnown, {
@@ -76,34 +76,40 @@ class KnownServices {
       if (!_.isEqual(servicesRegistered, servicesRegisteredNew)) {
         servicesRegistered = servicesRegisteredNew;
         logger.info(`${LOGTAG} Updates found`);
-        logger.info(`${LOGTAG} Reseting proxy rules`);
-        nginx.reset().then(() => {
-          let nbRulesTodo = servicesKnown.length;
-          const checkFinished = () => {
-            if (nbRulesTodo <= 0) {
-              logger.info(`${LOGTAG} Rules reset done`);
-              resolve();
-            }
-          };
-          checkFinished();
-          _.forEach(servicesRegistered, registeredItem => {
-            nginx
-              .register(registeredItem.details)
-              .then(() => {
-                nbRulesTodo--;
-                checkFinished();
-              })
-              .catch(() => {
-                nbRulesTodo--;
-                checkFinished();
-              });
-          });
-        });
+        return this.reload();
       } else {
         servicesRegistered = servicesRegisteredNew;
         logger.info(`${LOGTAG} No updates found`);
-        resolve();
+        return Promise.resolve();
       }
+    });
+  }
+
+  reload() {
+    return new Promise(resolve => {
+      logger.info(`${LOGTAG} Reseting proxy rules`);
+      nginx.reset().then(() => {
+        let nbRulesTodo = servicesKnown.length;
+        const checkFinished = () => {
+          if (nbRulesTodo <= 0) {
+            logger.info(`${LOGTAG} Rules reset done`);
+            resolve();
+          }
+        };
+        checkFinished();
+        _.forEach(servicesRegistered, registeredItem => {
+          nginx
+            .register(registeredItem.details)
+            .then(() => {
+              nbRulesTodo--;
+              checkFinished();
+            })
+            .catch(() => {
+              nbRulesTodo--;
+              checkFinished();
+            });
+        });
+      });
     });
   }
 }

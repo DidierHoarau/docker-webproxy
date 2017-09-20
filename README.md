@@ -40,7 +40,13 @@ The configuration is made by adding labels to the target container
 * discovery.service.name=subdomain.example.com
 * discovery.service.port=3000
 
-### Https
+_Note_: You don't need to include "www" for the domain. The proxy rules will be created for both addresses.
+
+### Https (optional)
 * discovery.service.https=y
 
-The This labels is not fully automated by the webproxy container. (Documentation will be updated soon regarding this aspect)
+Generation of the certificate is not fully automated but there are scripts to helps you do it:
+* _Generate a certificate_: Execute the command /opt/certificates-generate.sh subdomain.example.com
+* _Renew a certificate_: Execute the command /opt/certificates-renew.sh or call the api POST /api/certificates/
+
+_Note on automation_: Using the procedures above, you can start to automate the renewal of certificates. Regarding the generation of certificate, please note that the certbot command used in this script might ask some questions so it can't be fully automated for now.

@@ -29,4 +29,17 @@ servicesApi.post('/', (req, res) => {
     });
 });
 
+servicesApi.post('/update/', (req, res) => {
+  logger.info(`${LOGTAG} POST /`);
+  servicesRegistry
+    .reload()
+    .then(() => {
+      return res.status(201).json({});
+    })
+    .catch(error => {
+      logger.error(`${LOGTAG} POST /: Error: ${error}`);
+      return res.status(500).json({ error: 'internal error' });
+    });
+});
+
 module.exports = servicesApi;
