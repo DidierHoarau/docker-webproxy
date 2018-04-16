@@ -1,28 +1,29 @@
-/**
- * Docker Container Information Tools
- */
+import * as _ from 'lodash';
+import { Nginx } from './nginx';
+import { Logger } from './logger';
 
-const _ = require('lodash');
-const nginx = require('./nginx');
-const logger = require('./logger');
+const LOGTAG = '[service-registry]';
 
-const LOGTAG = '[known-services]';
-const servicesKnown = [];
-let servicesRegistered = [];
-
-// Public Functions
-class KnownServices {
+export class ServiceRegistry {
   //
-  update(node, updatedServices) {
+  private servicesKnown: any[];
+  private servicesRegistered: any[];
+
+  constructor() {
+    this.servicesKnown = [];
+    this.servicesRegistered = [];
+  }
+
+  public update(node: string, updatedServices: any): Promise<void> {
     return Promise.resolve().then(() => {
       // Check new services
       _.forEach(updatedServices, updatedService => {
-        const knownItem = _.find(servicesKnown, {
+        const knownItem = _.find(this.servicesKnown, {
           name: updatedService.name
         });
         // Service unknown
         if (!knownItem) {
-          servicesKnown.push({
+          this.servicesKnown.push({
             name: updatedService.name,
             entries: [
               {
@@ -34,7 +35,7 @@ class KnownServices {
           });
         } else {
           // Service name known but not for this node
-          const previousNodeEntry = _.find(knownItem.entries, { node });
+          const previousNodeEntry: any = _.find(knownItem.entries, { node });
           if (!previousNodeEntry) {
             knownItem.entries.push({
               timestamp: new Date(),
@@ -51,7 +52,7 @@ class KnownServices {
         }
       });
       // Remove obsolete services from this node
-      _.forEach(servicesKnown, knownItem => {
+      _.forEach(this.servicesKnown, knownItem => {
         if (!_.find(updatedServices, { name: knownItem.name })) {
           const indexToRemove = _.findIndex(knownItem.entries, { node });
           if (indexToRemove >= 0) {
@@ -62,7 +63,7 @@ class KnownServices {
 
       // Compute new list of services to registered
       const servicesRegisteredNew = [];
-      _.forEach(servicesKnown, knownItem => {
+      _.forEach(this.servicesKnown, knownItem => {
         if (knownItem.entries.length > 0) {
           servicesRegisteredNew.push({
             name: knownItem.name,
@@ -73,33 +74,32 @@ class KnownServices {
       });
 
       // Register to Nginx
-      if (!_.isEqual(servicesRegistered, servicesRegisteredNew)) {
-        servicesRegistered = servicesRegisteredNew;
-        logger.info(`${LOGTAG} Updates found`);
+      if (!_.isEqual(this.servicesRegistered, servicesRegisteredNew)) {
+        this.servicesRegistered = servicesRegisteredNew;
+        Logger.info(LOGTAG, `Updates found`);
         return this.reload();
       } else {
-        servicesRegistered = servicesRegisteredNew;
-        logger.info(`${LOGTAG} No updates found`);
+        this.servicesRegistered = servicesRegisteredNew;
+        Logger.info(LOGTAG, `No updates found`);
         return Promise.resolve();
       }
     });
   }
 
-  reload() {
+  public reload(): Promise<void> {
     return new Promise(resolve => {
-      logger.info(`${LOGTAG} Reseting proxy rules`);
-      nginx.reset().then(() => {
-        let nbRulesTodo = servicesKnown.length;
+      Logger.info(LOGTAG, `Reseting proxy rules`);
+      Nginx.reset().then(() => {
+        let nbRulesTodo = this.servicesKnown.length;
         const checkFinished = () => {
           if (nbRulesTodo <= 0) {
-            logger.info(`${LOGTAG} Rules reset done`);
+            Logger.info(LOGTAG, `Rules reset done`);
             resolve();
           }
         };
         checkFinished();
-        _.forEach(servicesRegistered, registeredItem => {
-          nginx
-            .register(registeredItem.details)
+        _.forEach(this.servicesRegistered, registeredItem => {
+          Nginx.register(registeredItem.details)
             .then(() => {
               nbRulesTodo--;
               checkFinished();
@@ -113,5 +113,3 @@ class KnownServices {
     });
   }
 }
-
-module.exports = new KnownServices();

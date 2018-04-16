@@ -4,28 +4,28 @@
  * and notify the proxy
  */
 
-const dockerMonitor = require('node-docker-monitor');
-const services = require('./tools/services');
-const proxy = require('./tools/proxy');
-const logger = require('./tools/logger');
-const config = require('./tools/config');
+import * as dockerMonitor from 'node-docker-monitor';
+import { Services } from './utils/services';
+import { Proxy } from './utils/proxy';
+import { Logger } from './utils/logger';
+import { config } from './config';
 
 const LOGTAG = '[app]';
 let refreshInProgress = false;
 let refreshAgain = false;
 
-logger.info(`${LOGTAG} Starting watcher app`);
+Logger.info(LOGTAG, `Starting watcher app`);
 
-dockerMonitor({
+(dockerMonitor as any)({
   // Called when Docker Container is started (Also called on Startup)
   onContainerUp: function(container) {
-    logger.info(`${LOGTAG} Container Up: ${container.Names[0]}`);
+    Logger.info(LOGTAG, `Container Up: ${container.Names[0]}`);
     refreshServices();
   },
 
   // Called when Docker Container is stoped
   onContainerDown: function(container) {
-    logger.info(`${LOGTAG} Container Down: ${container.Names[0]}`);
+    Logger.info(LOGTAG, `Container Down: ${container.Names[0]}`);
     refreshServices();
   }
 });
@@ -36,32 +36,31 @@ function refreshServices() {
     return;
   }
   refreshInProgress = true;
-  logger.info(`${LOGTAG} Refreshing`);
-  services
-    .list()
+  Logger.info(LOGTAG, `Refreshing`);
+  Services.list()
     .then(serviceList => {
-      logger.info(`${LOGTAG} Found ${serviceList.length} valid service(s)`);
-      return proxy.send(services.getNodeId(), serviceList);
+      Logger.info(LOGTAG, `Found ${serviceList.length} valid service(s)`);
+      return Proxy.send(Services.getNodeId(), serviceList);
     })
     .then(() => {
       doNextRefresh();
     })
     .catch(error => {
-      logger.error(`${LOGTAG} Error refreshing services: ${error}`);
+      Logger.error(LOGTAG, `Error refreshing services: ${error}`);
       doNextRefresh();
     });
 }
 
-function doNextRefresh() {
+function doNextRefresh(): void {
   refreshInProgress = false;
   if (refreshAgain) {
     refreshAgain = false;
-    logger.info(`${LOGTAG} Refreshing again in 10s`);
+    Logger.info(LOGTAG, `Refreshing again in 10s`);
     setTimeout(() => {
       refreshServices();
     }, 10000);
   } else {
-    logger.info(`${LOGTAG} Next refresh in ${config.refreshInterval / 1000}s`);
+    Logger.info(LOGTAG, `Next refresh in ${config.refreshInterval / 1000}s`);
     setTimeout(() => {
       refreshServices();
     }, config.refreshInterval);

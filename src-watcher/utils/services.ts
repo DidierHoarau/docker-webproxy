@@ -2,19 +2,16 @@
  * Docker Container Information Tools
  */
 
-const _ = require('lodash');
-const config = require('./config');
+import * as _ from 'lodash';
+import { config } from '../config';
 
 const Docker = require('dockerode');
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 let nodeId;
 
-class Services {
-  /**
-   * Get the list of container Push the value to the array if new and defined
-   * @return {Prommise<any[]>}
-   */
-  list() {
+export class Services {
+  //
+  public static list(): Promise<any[]> {
     return new Promise((resolve, reject) => {
       const serviceList = [];
       docker.listContainers((err, containers) => {
@@ -33,17 +30,10 @@ class Services {
     });
   }
 
-  /**
-   * Get the node ID
-   * @return {string} node id
-   */
-
-  getNodeId() {
+  public static getNodeId(): string {
     return nodeId;
   }
 }
-
-module.exports = new Services();
 
 function validateService(container) {
   // Init

@@ -1,2 +1,7 @@
-/tmp
-/node_modules
+node_modules
+dist-proxy
+dist-watcher
+dist
+docker-packaging-config/files
+coverage
+tmp

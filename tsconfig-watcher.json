@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "dist-watcher",
+    "allowJs": true
+  },
+  "include": ["src-watcher/**/*"],
+  "exclude": ["node_modules", "coverage", "test", "dist", "src-proxy", "dist-proxy", "dist-watcher"]
+}

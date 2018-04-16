@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "dist-proxy",
+    "allowJs": true
+  },
+  "include": ["src-proxy/**/*"],
+  "exclude": ["node_modules", "coverage", "test", "src-watcher", "dist-proxy", "dist-watcher"]
+}

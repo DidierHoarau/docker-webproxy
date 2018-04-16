@@ -3,20 +3,27 @@
   "version": "1.0.0",
   "description": "Foward to the right container depending on subdomain",
   "scripts": {
-    "//": "-- Packaging ------------------------------------------------------",
+    "packaging:init": "chmod +x docker-packaging-config/*.sh && docker-packaging-config/init.sh",
+    "//": "-------------------------------------------------------------------",
     "packaging:prepare": "docker-packaging/prepare.sh",
     "packaging:image-build": "docker-packaging/image-build.sh",
     "packaging:image-push": "docker-packaging/image-push.sh",
     "packaging:service-deploy": "docker-packaging/service-deploy.sh",
     "packaging:service-run": "docker-packaging/service-run.sh",
-    "///": "-- Dev -----------------------------------------------------------",
-    "deploy:docker": "npm run packaging:prepare && npm run packaging:image-build && npm run packaging:service-run",
-    "deploy:swarm": "npm run packaging:prepare && npm run packaging:image-build swarm && npm run packaging:image-push swarm && npm run packaging:service-deploy swarm",
-    "run:proxy": "NODE_ENV=dev nodemon --watch src-proxy src-proxy/app.js",
-    "run:watcher": "NODE_ENV=dev nodemon --watch src-watcher src-watcher/app.js",
-    "run:all": "concurrently --kill-others \"npm run run:proxy\" \"npm run run:watcher\"",
-    "lint": "eslint src-proxy && eslint src-watcher ",
-    "test:unit": "NODE_ENV=dev istanbul cover _mocha $(find ./src* -name \"*.spec.js\") "
+    "///": "------------------------------------------------------------------",
+    "build:init:proxy":
+      "rm -fr dist-proxy && mkdir -p dist-proxy/config && cp src-proxy/config/*.json dist-proxy/config/",
+    "build:proxy": "npm run build:init:proxy && tsc --p tsconfig-proxy.json",
+    "build:init:watcher":
+      "rm -fr dist-watcher && mkdir -p dist-watcher/config && cp src-watcher/config/*.json dist-watcher/config/",
+    "build:watcher": "npm run build:init:watcher && tsc --p tsconfig-watcher.json",
+    "build": "npm run build:proxy && npm run build:watcher",
+    "lint": "tslint --project tsconfig.json ./src/**/*.ts || exit 1",
+    "test:unit": "npm run lint && NODE_ENV=dev jest --watch --coverage",
+    "////": "-----------------------------------------------------------------",
+    "run:watch":
+      "npm run build && NODE_ENV=dev concurrently --kill-others \"tsc -w --p tsconfig-proxy.json\" \"tsc -w --p tsconfig-watcher.json\" \"nodemon dist-proxy/app.js\" \"nodemon dist-watcher/app.js\"",
+    "test:watch": "NODE_ENV=dev jest --watch --coverage"
   },
   "dependencies": {
     "body-parser": "^1.17.2",
@@ -30,14 +37,26 @@
     "winston": "^2.3.1"
   },
   "devDependencies": {
-    "chai": "^4.1.1",
-    "chai-http": "^3.0.0",
-    "eslint": "^4.5.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "nodemon": "^1.11.0",
-    "npm-watch": "^0.2.0",
-    "sinon": "^2.1.0"
+    "@types/body-parser": "^1.16.8",
+    "@types/chai": "^4.1.2",
+    "@types/express": "^4.11.1",
+    "@types/fs-extra": "^5.0.2",
+    "@types/jest": "^22.2.3",
+    "@types/lodash": "^4.14.107",
+    "@types/node": "^9.6.5",
+    "@types/request": "^2.47.0",
+    "@types/sinon": "^4.1.3",
+    "chai": "^4.0.2",
+    "concurrently": "^3.5.1",
+    "eslint": "^4.18.2",
+    "jest": "^22.4.2",
+    "nodemon": "^1.17.1",
+    "npm-watch": "^0.3.0",
+    "sinon": "^4.4.2",
+    "ts-jest": "^22.4.3",
+    "ts-node": "^5.0.1",
+    "tslint": "^5.9.1",
+    "typescript": "^2.7.2"
   },
   "repository": {
     "type": "git",
@@ -47,7 +66,19 @@
   "author": "Didier Hoarau",
   "license": "UNLICENSED",
   "homepage": "",
-  "watch": {
-    "test:auto:run": "{src}/*.js"
+  "jest": {
+    "moduleFileExtensions": ["ts", "tsx", "js"],
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "src-*/.*.spec.ts",
+    "collectCoverageFrom": ["src/**/*.{ts}"],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80
+      }
+    }
   }
 }
