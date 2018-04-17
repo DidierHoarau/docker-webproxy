@@ -2,7 +2,7 @@ FROM ubuntu
 
 RUN apt-get update \
     && apt-get install -y curl software-properties-common \
-    && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
     && add-apt-repository ppa:certbot/certbot \
     && apt-get update \
   	&& apt-get install --no-install-recommends --no-install-suggests -y \
@@ -10,13 +10,13 @@ RUN apt-get update \
                        letsencrypt python-certbot-nginx \
     && rm -rf /var/lib/apt/lists/*
 
-EXPOSE 80 443
+EXPOSE 80 443 3000
 
 COPY docker/proxy/entrypoint.sh /opt/
 COPY docker/proxy/certificates-generate.sh /opt/
 COPY docker/proxy/certificates-renew.sh /opt/
 COPY files/node_modules /opt/app/node_modules
-COPY files/src-proxy /opt/app/src-proxy
+COPY files/dist-proxy /opt/app/dist-proxy
 
 RUN chmod +x /opt/*.sh
 

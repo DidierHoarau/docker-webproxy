@@ -11,18 +11,15 @@
     "packaging:service-deploy": "docker-packaging/service-deploy.sh",
     "packaging:service-run": "docker-packaging/service-run.sh",
     "///": "------------------------------------------------------------------",
-    "build:init:proxy":
-      "rm -fr dist-proxy && mkdir -p dist-proxy/config && cp src-proxy/config/*.json dist-proxy/config/",
+    "build:init:proxy": "rm -fr dist-proxy && mkdir -p dist-proxy/config && cp src-proxy/config/*.json dist-proxy/config/",
     "build:proxy": "npm run build:init:proxy && tsc --p tsconfig-proxy.json",
-    "build:init:watcher":
-      "rm -fr dist-watcher && mkdir -p dist-watcher/config && cp src-watcher/config/*.json dist-watcher/config/",
+    "build:init:watcher": "rm -fr dist-watcher && mkdir -p dist-watcher/config && cp src-watcher/config/*.json dist-watcher/config/",
     "build:watcher": "npm run build:init:watcher && tsc --p tsconfig-watcher.json",
     "build": "npm run build:proxy && npm run build:watcher",
     "lint": "tslint --project tsconfig.json ./src/**/*.ts || exit 1",
     "test:unit": "npm run lint && NODE_ENV=dev jest --watch --coverage",
     "////": "-----------------------------------------------------------------",
-    "run:watch":
-      "npm run build && NODE_ENV=dev concurrently --kill-others \"tsc -w --p tsconfig-proxy.json\" \"tsc -w --p tsconfig-watcher.json\" \"nodemon dist-proxy/app.js\" \"nodemon dist-watcher/app.js\"",
+    "run:watch": "npm run build && NODE_ENV=dev concurrently --kill-others \"tsc -w --p tsconfig-proxy.json\" \"tsc -w --p tsconfig-watcher.json\" \"nodemon dist-proxy/app.js\" \"nodemon dist-watcher/app.js\"",
     "test:watch": "NODE_ENV=dev jest --watch --coverage"
   },
   "dependencies": {
@@ -67,12 +64,18 @@
   "license": "UNLICENSED",
   "homepage": "",
   "jest": {
-    "moduleFileExtensions": ["ts", "tsx", "js"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
     "transform": {
       "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "src-*/.*.spec.ts",
-    "collectCoverageFrom": ["src/**/*.{ts}"],
+    "collectCoverageFrom": [
+      "src/**/*.{ts}"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 80,

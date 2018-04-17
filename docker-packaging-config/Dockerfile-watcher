@@ -1,8 +1,8 @@
-FROM node
+FROM node:alpine
 
 COPY files/node_modules /opt/app/node_modules
-COPY files/src-watcher /opt/app/src-watcher
+COPY files/dist-watcher /opt/app/dist-watcher
 
 WORKDIR /opt/app
 
-CMD ["node", "src-watcher/app.js"]
+CMD ["node", "dist-watcher/app.js"]
