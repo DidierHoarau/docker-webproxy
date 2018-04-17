@@ -2,7 +2,7 @@
 
 # NodeJS app
 cd /opt/app
-node src-proxy/app.js &
+node dist-proxy/app.js &
 
 # Nginx
 nginx -g "daemon off;"
