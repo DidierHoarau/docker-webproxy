@@ -5,7 +5,7 @@ logger.configure({
   transports: [
     new logger.transports.Console({
       colorize: true
-    })
+    } as any)
   ]
 });
 
