@@ -63,6 +63,7 @@ export class Nginx {
       configContent = `
           server {
             listen 80;
+            client_max_body_size 200M;
             ${configServerName}
             ${wellKnownConfig}
             ${configContentLocation}
